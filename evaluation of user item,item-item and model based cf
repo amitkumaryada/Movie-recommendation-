@@ -3,16 +3,20 @@ import numpy as np
 headers=['MovieID', 'Title', 'Genres']
 movies_df=pd.read_csv('C:/amit dataset/ml-latest-small/movies_df.csv',names=headers)
 movies_df.head()
+movies_df.info()
 header = ['UserID', 'MovieID', 'Rating', 'Timestamp']
 ratings_df = pd.read_csv('Desktop/u.data.csv', names=header)
 ratings_df.head()
+n_users = ratings_df.UserID.unique().shape[0]
+n_items = ratings_df.MovieID.unique().shape[0]
+print ('Number of users = ' + str(n_users) + ' | Number of movies = ' + str(n_items))
 R_df = ratings_df.pivot(index = 'UserID', columns ='MovieID', values = 'Rating').fillna(0)
 R_df.head()
 R = R_df.as_matrix()
 user_ratings_mean = np.mean(R, axis = 1)
 R_demeaned = R - user_ratings_mean.reshape(-1, 1)
 from scipy.sparse.linalg import svds
-U, sigma, Vt = svds(R_demeaned, k = 20)
+U, sigma, Vt = svds(R_demeaned, k = 50)
 sigma = np.diag(sigma)
 all_user_predicted_ratings = np.dot(np.dot(U, sigma), Vt) + user_ratings_mean.reshape(-1, 1)
 preds_df = pd.DataFrame(all_user_predicted_ratings, columns = R_df.columns)
@@ -46,7 +50,7 @@ def recommend_movies(predictions_df, userID, movies_df, original_ratings_df, num
     already_rated, predictions = recommend_movies(preds_df, 837, movies_df, ratings_df, 10)
     already_rated.head(10)
     predictions
-    ratings_df=df
+df=ratings_df
     #EVALUATION PART
 n_users = df.UserID.unique().shape[0]
 n_items = df.MovieID.unique().shape[0]
