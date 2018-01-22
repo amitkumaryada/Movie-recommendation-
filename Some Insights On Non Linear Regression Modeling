@@ -1,0 +1,50 @@
+library(readxl)
+ wage_data <- read_excel("C:/Users/Dell/Desktop/Dessertation/wage_data.xlsx")
+# View(wage_data)
+ mydata=wage_data
+ sum(is.na(mydata))
+  set.seed(1) 
+  sample = sample(2, nrow(mydata), replace =TRUE, prob = c(0.8, 0.2)) 
+  training = mydata[sample == 1,] 
+  test = mydata[sample == 2, ]
+  attach(training) 
+  library(rpart)
+  library(rpart.plot)
+  mymodel = rpart(health_ins~., method = "class", control = rpart.control(minsplit = 50), data = training)
+  plotcp(mymodel) 
+  mymodel = prune(mymodel, cp = 0.011)
+  rpart.plot(mymodel)
+ pred=predict(mymodel,type = "class",data=training)
+ mytable =table(training$health_ins,pred)
+ prop.table(mytable)*100
+  predtest = predict(mymodel, type = "class", newdata = test) 
+  mytesttable = table(test$health_ins, predtest) 
+ prop.table(mytesttable)*100
+ 
+ ## random forest
+  library(randomForest)
+ attach(training)
+ #health_ins=factor(training$health_ins)
+ 
+# health_ins=as.character(training$health_ins)
+ 
+ mymodel = randomForest(health_ins~.,data = training)
+  mymodel
+  predtest = predict(mymodel,type = "class", newdata = test)
+  mytesttable = table(test$health_ins, predtest)
+  Mytesttable 
+  prop.table(mytesttable)*100
+  ## Bagging
+   library(randomForest)
+   attach(training)
+  mymodel = randomForest(health_ins ~., data = training, mtry = 13, importance = TRUE)
+  mymodel
+  importance(mymodel) 
+ varImpPlot(mymodel)
+ predtest = predict(mymodel, newdata = test) 
+  restest = test$MEDV - predtest 
+  mse = mean(restest^2) 
+  mse
+ rmse = sqrt(mse) 
+  rmse
+ 
